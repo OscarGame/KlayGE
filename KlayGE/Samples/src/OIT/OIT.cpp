@@ -15,7 +15,7 @@
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/GraphicsBuffer.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Query.hpp>
 #include <KlayGE/PostProcess.hpp>
 #include <KlayGE/Camera.hpp>
@@ -540,11 +540,11 @@ namespace
 		RenderTechnique* rov_at_render_tech_;
 	};
 
-	class PolygonObject : public SceneObject
+	class PolygonObject : public SceneNode
 	{
 	public:
 		PolygonObject()
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			this->AddRenderable(SyncLoadModel("robot_clean.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<RenderModel>(), CreateMeshFactory<RenderPolygon>()));

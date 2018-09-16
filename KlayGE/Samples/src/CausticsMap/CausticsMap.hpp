@@ -79,13 +79,13 @@ private:
 
 	KlayGE::FontPtr font_;
 	KlayGE::TrackballCameraController trackball_controller_;
-	KlayGE::SceneObjectPtr light_proxy_;
+	KlayGE::SceneNodePtr light_proxy_;
 	KlayGE::LightSourcePtr light_;
 	KlayGE::LightSourcePtr dummy_light_;
 
 	KlayGE::TexturePtr y_cube_map_;
 	KlayGE::TexturePtr c_cube_map_;
-	KlayGE::SceneObjectPtr sky_box_;
+	KlayGE::SceneNodePtr sky_box_;
 
 	KlayGE::TexturePtr refract_obj_N_texture_f_;
 	KlayGE::TexturePtr refract_obj_N_texture_b_;
@@ -123,10 +123,10 @@ private:
 	KlayGE::PostProcessPtr copy_pp_;
 	KlayGE::PostProcessPtr depth_to_linear_pp_;
 
-	KlayGE::SceneObjectPtr plane_object_;
-	KlayGE::SceneObjectPtr refract_obj_;
-	KlayGE::SceneObjectPtr bunny_;
-	KlayGE::SceneObjectPtr sphere_;
+	KlayGE::SceneNodePtr plane_object_;
+	KlayGE::SceneNodePtr refract_obj_;
+	KlayGE::SceneNodePtr bunny_;
+	KlayGE::SceneNodePtr sphere_;
 	KlayGE::RenderablePtr caustics_grid_;
 
 	KlayGE::UIDialogPtr dialog_;

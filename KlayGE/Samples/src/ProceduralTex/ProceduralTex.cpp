@@ -15,7 +15,7 @@
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/GraphicsBuffer.hpp>
 #include <KlayGE/Light.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Camera.hpp>
 
 #include <KlayGE/RenderFactory.hpp>
@@ -91,11 +91,11 @@ namespace
 		}
 	};
 
-	class PolygonObject : public SceneObject
+	class PolygonObject : public SceneNode
 	{
 	public:
 		PolygonObject()
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			this->AddRenderable(SyncLoadModel("teapot.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<RenderModel>(), CreateMeshFactory<RenderPolygon>()));

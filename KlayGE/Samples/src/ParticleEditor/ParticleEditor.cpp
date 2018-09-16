@@ -13,7 +13,7 @@
 #include <KlayGE/ResLoader.hpp>
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/RenderableHelper.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Texture.hpp>
 #include <KlayGE/RenderLayout.hpp>
 #include <KlayGE/Window.hpp>
@@ -104,11 +104,11 @@ namespace
 		RenderTechnique* color_tech_;
 	};
 
-	class TerrainObject : public SceneObject
+	class TerrainObject : public SceneNode
 	{
 	public:
 		TerrainObject()
-			: SceneObject(MakeSharedPtr<TerrainRenderable>(), SOA_Cullable)
+			: SceneNode(MakeSharedPtr<TerrainRenderable>(), SOA_Cullable)
 		{
 		}
 	};

@@ -13,7 +13,7 @@
 #include <KlayGE/Context.hpp>
 #include <KlayGE/ResLoader.hpp>
 #include <KlayGE/RenderSettings.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Light.hpp>
 #include <KlayGE/Camera.hpp>
@@ -177,11 +177,11 @@ namespace
 		float4x4 inv_model_mat_;
 	};
 
-	class PolygonObject : public SceneObject
+	class PolygonObject : public SceneNode
 	{
 	public:
 		PolygonObject()
-			: SceneObject(MakeSharedPtr<RenderPolygon>(), SOA_Cullable)
+			: SceneNode(MakeSharedPtr<RenderPolygon>(), SOA_Cullable)
 		{
 		}
 

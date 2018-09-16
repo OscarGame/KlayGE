@@ -22,8 +22,8 @@ private:
 
 	KlayGE::FontPtr font_;
 
-	KlayGE::SceneObjectPtr particles_;
-	KlayGE::SceneObjectPtr terrain_;
+	KlayGE::SceneNodePtr particles_;
+	KlayGE::SceneNodePtr terrain_;
 
 	KlayGE::TrackballCameraController tb_controller_;
 

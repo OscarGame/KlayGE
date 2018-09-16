@@ -1,18 +1,32 @@
-// SceneObject.cpp
-// KlayGE 场景对象类 实现文件
-// Ver 3.9.0
-// 版权所有(C) 龚敏敏, 2003-2009
-// Homepage: http://www.klayge.org
-//
-// 3.9.0
-// 增加了Overlay标志 (2009.5.13)
-// 增加了Update (2009.5.14)
-//
-// 3.1.0
-// 初次建立 (2005.10.31)
-//
-// 修改记录
-//////////////////////////////////////////////////////////////////////////////////
+/**
+ * @file SceneNode.cpp
+ * @author Minmin Gong
+ *
+ * @section DESCRIPTION
+ *
+ * This source file is part of KlayGE
+ * For the latest info, see http://www.klayge.org
+ *
+ * @section LICENSE
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ * You may alternatively use this source under the terms of
+ * the KlayGE Proprietary License (KPL). You can obtained such a license
+ * from http://www.klayge.org/licensing/.
+ */
 
 #include <KlayGE/KlayGE.hpp>
 #include <KlayGE/SceneManager.hpp>
@@ -22,11 +36,11 @@
 
 #include <boost/assert.hpp>
 
-#include <KlayGE/SceneObject.hpp>
+#include <KlayGE/SceneNode.hpp>
 
 namespace KlayGE
 {
-	SceneObject::SceneObject(uint32_t attrib)
+	SceneNode::SceneNode(uint32_t attrib)
 		: attrib_(attrib), parent_(nullptr),
 			model_(float4x4::Identity()), abs_model_(float4x4::Identity()),
 			pos_aabb_dirty_(true), visible_mark_(BO_No)
@@ -38,61 +52,60 @@ namespace KlayGE
 		}
 	}
 
-	SceneObject::SceneObject(RenderablePtr const & renderable, uint32_t attrib)
-		: SceneObject(attrib)
+	SceneNode::SceneNode(RenderablePtr const & renderable, uint32_t attrib)
+		: SceneNode(attrib)
 	{
 		this->AddRenderable(renderable);
 		this->OnAttachRenderable(false);
 	}
 
-	SceneObject::~SceneObject()
+	SceneNode::~SceneNode()
 	{
 	}
 
-	SceneObject* SceneObject::Parent() const
+	SceneNode* SceneNode::Parent() const
 	{
 		return parent_;
 	}
 
-	void SceneObject::Parent(SceneObject* so)
+	void SceneNode::Parent(SceneNode* so)
 	{
 		parent_ = so;
 	}
-
-	uint32_t SceneObject::NumChildren() const
+	
+	std::vector<SceneNodePtr>& SceneNode::Children()
 	{
-		return static_cast<uint32_t>(children_.size());
+		return children_;
 	}
 
-	const SceneObjectPtr& SceneObject::Child(uint32_t index) const
+	std::vector<SceneNodePtr> const & SceneNode::Children() const
 	{
-		BOOST_ASSERT(index < children_.size());
-		return children_[index];
+		return children_;
 	}
 
-	uint32_t SceneObject::NumRenderables() const
+	uint32_t SceneNode::NumRenderables() const
 	{
 		return static_cast<uint32_t>(renderables_.size());
 	}
 
-	RenderablePtr const & SceneObject::GetRenderable() const
+	RenderablePtr const & SceneNode::GetRenderable() const
 	{
 		return this->GetRenderable(0);
 	}
 
-	RenderablePtr const & SceneObject::GetRenderable(uint32_t i) const
+	RenderablePtr const & SceneNode::GetRenderable(uint32_t i) const
 	{
 		return renderables_[i];
 	}
 
-	void SceneObject::AddRenderable(RenderablePtr const & renderable)
+	void SceneNode::AddRenderable(RenderablePtr const & renderable)
 	{
 		renderables_.push_back(renderable);
 		renderables_hw_res_ready_.push_back(false);
 		pos_aabb_dirty_ = true;
 	}
 
-	void SceneObject::DelRenderable(RenderablePtr const & renderable)
+	void SceneNode::DelRenderable(RenderablePtr const & renderable)
 	{
 		auto iter = std::find(renderables_.begin(), renderables_.end(), renderable);
 		if (iter != renderables_.end())
@@ -102,27 +115,27 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::ModelMatrix(float4x4 const & mat)
+	void SceneNode::ModelMatrix(float4x4 const & mat)
 	{
 		model_ = mat;
 	}
 
-	float4x4 const & SceneObject::ModelMatrix() const
+	float4x4 const & SceneNode::ModelMatrix() const
 	{
 		return model_;
 	}
 
-	float4x4 const & SceneObject::AbsModelMatrix() const
+	float4x4 const & SceneNode::AbsModelMatrix() const
 	{
 		return abs_model_;
 	}
 
-	AABBox const & SceneObject::PosBoundWS() const
+	AABBox const & SceneNode::PosBoundWS() const
 	{
 		return *pos_aabb_ws_;
 	}
 
-	void SceneObject::UpdateAbsModelMatrix()
+	void SceneNode::UpdateAbsModelMatrix()
 	{
 		if (parent_)
 		{
@@ -148,27 +161,27 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::VisibleMark(BoundOverlap vm)
+	void SceneNode::VisibleMark(BoundOverlap vm)
 	{
 		visible_mark_ = vm;
 	}
 
-	BoundOverlap SceneObject::VisibleMark() const
+	BoundOverlap SceneNode::VisibleMark() const
 	{
 		return visible_mark_;
 	}
 
-	void SceneObject::BindSubThreadUpdateFunc(std::function<void(SceneObject&, float, float)> const & update_func)
+	void SceneNode::BindSubThreadUpdateFunc(std::function<void(SceneNode&, float, float)> const & update_func)
 	{
 		sub_thread_update_func_ = update_func;
 	}
 
-	void SceneObject::BindMainThreadUpdateFunc(std::function<void(SceneObject&, float, float)> const & update_func)
+	void SceneNode::BindMainThreadUpdateFunc(std::function<void(SceneNode&, float, float)> const & update_func)
 	{
 		main_thread_update_func_ = update_func;
 	}
 
-	void SceneObject::SubThreadUpdate(float app_time, float elapsed_time)
+	void SceneNode::SubThreadUpdate(float app_time, float elapsed_time)
 	{
 		if (sub_thread_update_func_)
 		{
@@ -176,7 +189,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::MainThreadUpdate(float app_time, float elapsed_time)
+	bool SceneNode::MainThreadUpdate(float app_time, float elapsed_time)
 	{
 		bool refreshed = false;
 		for (size_t i = 0; i < renderables_.size(); ++ i)
@@ -202,53 +215,53 @@ namespace KlayGE
 		return refreshed;
 	}
 
-	void SceneObject::AddToSceneManager()
+	void SceneNode::AddToSceneManager()
 	{
-		Context::Instance().SceneManagerInstance().AddSceneObject(this->shared_from_this());
+		Context::Instance().SceneManagerInstance().AddSceneNode(this->shared_from_this());
 		for (auto const & child : children_)
 		{
 			child->AddToSceneManager();
 		}
 	}
 
-	void SceneObject::AddToSceneManagerLocked()
+	void SceneNode::AddToSceneManagerLocked()
 	{
-		Context::Instance().SceneManagerInstance().AddSceneObjectLocked(this->shared_from_this());
+		Context::Instance().SceneManagerInstance().AddSceneNodeLocked(this->shared_from_this());
 		for (auto const & child : children_)
 		{
 			child->AddToSceneManagerLocked();
 		}
 	}
 
-	void SceneObject::DelFromSceneManager()
+	void SceneNode::DelFromSceneManager()
 	{
 		for (auto const & child : children_)
 		{
 			child->DelFromSceneManager();
 		}
-		Context::Instance().SceneManagerInstance().DelSceneObject(this->shared_from_this());
+		Context::Instance().SceneManagerInstance().DelSceneNode(this->shared_from_this());
 	}
 
-	void SceneObject::DelFromSceneManagerLocked()
+	void SceneNode::DelFromSceneManagerLocked()
 	{
 		for (auto const & child : children_)
 		{
 			child->DelFromSceneManagerLocked();
 		}
-		Context::Instance().SceneManagerInstance().DelSceneObjectLocked(this->shared_from_this());
+		Context::Instance().SceneManagerInstance().DelSceneNodeLocked(this->shared_from_this());
 	}
 
-	uint32_t SceneObject::Attrib() const
+	uint32_t SceneNode::Attrib() const
 	{
 		return attrib_;
 	}
 
-	bool SceneObject::Visible() const
+	bool SceneNode::Visible() const
 	{
 		return (0 == (attrib_ & SOA_Invisible));
 	}
 
-	void SceneObject::Visible(bool vis)
+	void SceneNode::Visible(bool vis)
 	{
 		if (vis)
 		{
@@ -265,17 +278,17 @@ namespace KlayGE
 		}
 	}
 
-	std::vector<VertexElement> const & SceneObject::InstanceFormat() const
+	std::vector<VertexElement> const & SceneNode::InstanceFormat() const
 	{
 		return instance_format_;
 	}
 
-	void const * SceneObject::InstanceData() const
+	void const * SceneNode::InstanceData() const
 	{
 		return nullptr;
 	}
 
-	void SceneObject::SelectMode(bool select_mode)
+	void SceneNode::SelectMode(bool select_mode)
 	{
 		for (auto const & renderable : renderables_)
 		{
@@ -283,7 +296,7 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::ObjectID(uint32_t id)
+	void SceneNode::ObjectID(uint32_t id)
 	{
 		for (auto const & renderable : renderables_)
 		{
@@ -291,7 +304,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::SelectMode() const
+	bool SceneNode::SelectMode() const
 	{
 		if (renderables_[0])
 		{
@@ -303,7 +316,7 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::Pass(PassType type)
+	void SceneNode::Pass(PassType type)
 	{
 		for (auto const & renderable : renderables_)
 		{
@@ -316,7 +329,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::TransparencyBackFace() const
+	bool SceneNode::TransparencyBackFace() const
 	{
 		if (renderables_[0])
 		{
@@ -328,7 +341,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::TransparencyFrontFace() const
+	bool SceneNode::TransparencyFrontFace() const
 	{
 		if (renderables_[0])
 		{
@@ -340,7 +353,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::SSS() const
+	bool SceneNode::SSS() const
 	{
 		if (renderables_[0])
 		{
@@ -352,7 +365,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::Reflection() const
+	bool SceneNode::Reflection() const
 	{
 		if (renderables_[0])
 		{
@@ -364,7 +377,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::SimpleForward() const
+	bool SceneNode::SimpleForward() const
 	{
 		if (renderables_[0])
 		{
@@ -376,7 +389,7 @@ namespace KlayGE
 		}
 	}
 
-	bool SceneObject::VDM() const
+	bool SceneNode::VDM() const
 	{
 		if (renderables_[0])
 		{
@@ -388,7 +401,7 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::OnAttachRenderable(bool add_to_scene)
+	void SceneNode::OnAttachRenderable(bool add_to_scene)
 	{
 		for (auto const & renderable : renderables_)
 		{
@@ -398,7 +411,7 @@ namespace KlayGE
 				children_.resize(base + renderable->NumSubrenderables());
 				for (uint32_t i = 0; i < renderable->NumSubrenderables(); ++ i)
 				{
-					auto child = MakeSharedPtr<SceneObject>(renderable->Subrenderable(i), attrib_);
+					auto child = MakeSharedPtr<SceneNode>(renderable->Subrenderable(i), attrib_);
 					child->Parent(this);
 					children_[base + i] = child;
 
@@ -411,7 +424,7 @@ namespace KlayGE
 		}
 	}
 
-	void SceneObject::UpdatePosBound()
+	void SceneNode::UpdatePosBound()
 	{
 		if (pos_aabb_dirty_)
 		{

@@ -50,10 +50,10 @@ namespace KlayGE
 		virtual void ClearObject() override;
 
 	private:
-		virtual void OnAddSceneObject(SceneObjectPtr const & obj) override;
-		virtual void OnDelSceneObject(std::vector<SceneObjectPtr>::iterator iter) override;
-		virtual void DoSuspend() override;
-		virtual void DoResume() override;
+		void OnAddSceneNode(SceneNodePtr const & obj) override;
+		void OnDelSceneNode(std::vector<SceneNodePtr>::iterator iter) override;
+		void DoSuspend() override;
+		void DoResume() override;
 
 		void DivideNode(size_t index, uint32_t curr_depth);
 		void NodeVisible(size_t index);
@@ -75,7 +75,7 @@ namespace KlayGE
 			int first_child_index;
 			BoundOverlap visible;
 
-			std::vector<SceneObject*> obj_ptrs;
+			std::vector<SceneNode*> node_ptrs;
 		};
 
 		std::vector<octree_node_t> octree_;

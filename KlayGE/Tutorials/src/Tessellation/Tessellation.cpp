@@ -13,7 +13,7 @@
 #include <KlayGE/Context.hpp>
 #include <KlayGE/ResLoader.hpp>
 #include <KlayGE/RenderSettings.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Light.hpp>
 #include <KlayGE/Camera.hpp>
@@ -84,11 +84,11 @@ namespace
 		RenderEffectParameter* tess_factors_param_;
 	};
 
-	class TriangleObject : public SceneObject
+	class TriangleObject : public SceneNode
 	{
 	public:
 		TriangleObject()
-			: SceneObject(MakeSharedPtr<RenderTriangle>(), SOA_Cullable)
+			: SceneNode(MakeSharedPtr<RenderTriangle>(), SOA_Cullable)
 		{
 		}
 

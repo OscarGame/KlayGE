@@ -87,7 +87,7 @@ namespace KlayGE
 
 
 	LensFlareSceneObject::LensFlareSceneObject()
-		: SceneObject(MakeSharedPtr<LensFlareRenderable>(), 0)
+		: SceneNode(MakeSharedPtr<LensFlareRenderable>(), 0)
 	{
 	}
 
@@ -166,7 +166,7 @@ namespace KlayGE
 
 	void LensFlareSceneObject::Pass(PassType type)
 	{
-		SceneObject::Pass(type);
+		SceneNode::Pass(type);
 		this->Visible(this->LFVisible());
 	}
 }

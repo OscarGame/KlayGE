@@ -37,12 +37,12 @@
 
 #include <boost/assert.hpp>
 
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 
 namespace KlayGE
 {
 	SceneObjectSkyBox::SceneObjectSkyBox(uint32_t attrib)
-		: SceneObject(MakeSharedPtr<RenderableSkyBox>(), attrib | SOA_NotCastShadow)
+		: SceneNode(MakeSharedPtr<RenderableSkyBox>(), attrib | SOA_NotCastShadow)
 	{
 	}
 
@@ -68,7 +68,7 @@ namespace KlayGE
 	}
 
 	SceneObjectLightSourceProxy::SceneObjectLightSourceProxy(LightSourcePtr const & light, RenderModelPtr const & light_model)
-		: SceneObject(light_model, SOA_Cullable | SOA_Moveable | SOA_NotCastShadow),
+		: SceneNode(light_model, SOA_Cullable | SOA_Moveable | SOA_NotCastShadow),
 			light_(light)
 	{
 		model_scaling_ = float4x4::Identity();
@@ -78,7 +78,7 @@ namespace KlayGE
 		{
 			checked_pointer_cast<RenderableLightSourceProxy>(light_model->Subrenderable(i))->AttachLightSrc(light);
 
-			auto child = MakeSharedPtr<SceneObject>(light_model->Subrenderable(i), attrib_);
+			auto child = MakeSharedPtr<SceneNode>(light_model->Subrenderable(i), attrib_);
 			child->Parent(this);
 			children_[i] = child;
 		}
@@ -160,7 +160,7 @@ namespace KlayGE
 	}
 
 	SceneObjectCameraProxy::SceneObjectCameraProxy(CameraPtr const & camera, RenderModelPtr const & camera_model)
-		: SceneObject(camera_model, SOA_Cullable | SOA_Moveable | SOA_NotCastShadow),
+		: SceneNode(camera_model, SOA_Cullable | SOA_Moveable | SOA_NotCastShadow),
 			camera_(camera)
 	{
 		model_scaling_ = float4x4::Identity();
@@ -170,7 +170,7 @@ namespace KlayGE
 		{
 			checked_pointer_cast<RenderableCameraProxy>(camera_model->Subrenderable(i))->AttachCamera(camera);
 
-			auto child = MakeSharedPtr<SceneObject>(camera_model->Subrenderable(i), attrib_);
+			auto child = MakeSharedPtr<SceneNode>(camera_model->Subrenderable(i), attrib_);
 			child->Parent(this);
 			children_[i] = child;
 		}

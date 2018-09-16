@@ -10,7 +10,7 @@
 #include <KlayGE/FrameBuffer.hpp>
 #include <KlayGE/GraphicsBuffer.hpp>
 #include <KFL/Math.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/RenderStateObject.hpp>
 #include <KlayGE/Query.hpp>
 #include <KlayGE/Light.hpp>
@@ -202,11 +202,11 @@ namespace
 		TexturePtr caustics_map_;
 	};
 
-	class PlaneObject : public SceneObject
+	class PlaneObject : public SceneNode
 	{
 	public:
 		PlaneObject(float length, float width)
-			: SceneObject(MakeSharedPtr<ReceivePlane>(length, width), SOA_Moveable)
+			: SceneNode(MakeSharedPtr<ReceivePlane>(length, width), SOA_Moveable)
 		{
 		}
 
@@ -648,14 +648,14 @@ void CausticsMapApp::OnCreate()
 
 	RenderablePtr model_sphere = ASyncLoadModel("sphere_high.meshml", EAH_GPU_Read | EAH_Immutable,
 		CreateModelFactory<RefractModel>(), CreateMeshFactory<RefractMesh>());
-	sphere_ = MakeSharedPtr<SceneObject>(model_sphere, SceneObject::SOA_Cullable);
+	sphere_ = MakeSharedPtr<SceneNode>(model_sphere, SceneNode::SOA_Cullable);
 	sphere_->ModelMatrix(MathLib::scaling(200.0f, 200.0f, 200.0f) * MathLib::translation(0.0f, 10.0f, 0.0f));
 	sphere_->AddToSceneManager();
 	sphere_->Visible(false);
 
 	RenderablePtr model_bunny = ASyncLoadModel("bunny.meshml", EAH_GPU_Read | EAH_Immutable,
 		CreateModelFactory<RefractModel>(), CreateMeshFactory<RefractMesh>());
-	bunny_ = MakeSharedPtr<SceneObject>(model_bunny, SceneObject::SOA_Cullable);
+	bunny_ = MakeSharedPtr<SceneNode>(model_bunny, SceneNode::SOA_Cullable);
 	bunny_->ModelMatrix(MathLib::scaling(320.0f, 320.0f, 320.0f) * MathLib::translation(3.0f, 2.0f, 0.0f));
 	bunny_->AddToSceneManager();
 	bunny_->Visible(false);

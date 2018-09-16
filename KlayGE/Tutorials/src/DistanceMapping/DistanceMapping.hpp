@@ -19,11 +19,11 @@ private:
 	void InputHandler(KlayGE::InputEngine const & sender, KlayGE::InputAction const & action);
 
 	KlayGE::FontPtr font_;
-	KlayGE::SceneObjectPtr polygon_;
+	KlayGE::SceneNodePtr polygon_;
 
 	KlayGE::FirstPersonCameraController fpcController_;
 
-	KlayGE::SceneObjectPtr light_proxy_;
+	KlayGE::SceneNodePtr light_proxy_;
 	KlayGE::LightSourcePtr light_;
 };
 

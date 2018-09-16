@@ -10,7 +10,7 @@
 #include <KlayGE/RenderMaterial.hpp>
 #include <KlayGE/RenderableHelper.hpp>
 #include <KlayGE/Camera.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/DeferredRenderingLayer.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Mesh.hpp>
@@ -115,11 +115,11 @@ namespace
 		}
 	};
 
-	class ModelObject : public SceneObject
+	class ModelObject : public SceneNode
 	{
 	public:
 		explicit ModelObject(std::string const & name)
-			: SceneObject(0)
+			: SceneNode(0)
 		{
 			auto renderable = SyncLoadModel(name, EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<DetailedSkinnedModel>(), CreateMeshFactory<DetailedSkinnedMesh>());
@@ -325,12 +325,12 @@ namespace KlayGE
 		main_light_->BindUpdateFunc(LightSourceUpdate());
 		main_light_->AddToSceneManager();
 
-		axis_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderAxis>(),
-			SceneObject::SOA_Cullable | SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		axis_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderAxis>(),
+			SceneNode::SOA_Cullable | SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		axis_->AddToSceneManager();
 
-		grid_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderGrid>(),
-			SceneObject::SOA_Cullable | SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		grid_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderGrid>(),
+			SceneNode::SOA_Cullable | SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		grid_->AddToSceneManager();
 
 		Color clear_clr(0.2f, 0.4f, 0.6f, 1);
@@ -359,8 +359,8 @@ namespace KlayGE
 
 		ambient_light_->SkylightTex(default_cube_map_);
 
-		selected_bb_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderableLineBox>(),
-			SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		selected_bb_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderableLineBox>(),
+			SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		selected_bb_->Visible(false);
 		selected_bb_->AddToSceneManager();
 		checked_pointer_cast<RenderableLineBox>(selected_bb_->GetRenderable())->SetColor(Color(1, 1, 1, 1));
@@ -443,14 +443,14 @@ namespace KlayGE
 
 		if (checked_pointer_cast<DetailedSkinnedModel>(model_->GetRenderable())->NumJoints() > 0)
 		{
-			skeleton_model_ = MakeSharedPtr<SceneObject>(
+			skeleton_model_ = MakeSharedPtr<SceneNode>(
 				MakeSharedPtr<SkeletonMesh>(checked_pointer_cast<RenderModel>(model_->GetRenderable())), 0);
 			skeleton_model_->AddToSceneManager();
 		}
 
 		if (!ResLoader::Instance().Locate(imposter_name).empty())
 		{
-			imposter_ = MakeSharedPtr<SceneObject>(
+			imposter_ = MakeSharedPtr<SceneNode>(
 				MakeSharedPtr<RenderImpostor>(imposter_name, model_->GetRenderable()->PosBound()), 0);
 			imposter_->AddToSceneManager();
 			imposter_->Visible(false);

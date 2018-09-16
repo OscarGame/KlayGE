@@ -22,9 +22,9 @@ private:
 	void MetalnessChangedHandler(KlayGE::UISlider const & sender);
 
 	KlayGE::FontPtr font_;
-	std::vector<KlayGE::SceneObjectPtr> spheres_;
-	KlayGE::SceneObjectPtr single_object_;
-	KlayGE::SceneObjectPtr sky_box_;
+	std::vector<KlayGE::SceneNodePtr> spheres_;
+	KlayGE::SceneNodePtr single_object_;
+	KlayGE::SceneNodePtr sky_box_;
 
 	KlayGE::float3 albedo_;
 	float glossiness_;

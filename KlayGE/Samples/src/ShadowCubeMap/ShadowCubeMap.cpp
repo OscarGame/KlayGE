@@ -17,7 +17,7 @@
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/Texture.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/PostProcess.hpp>
 #include <KlayGE/Light.hpp>
 #include <KlayGE/Camera.hpp>
@@ -346,9 +346,9 @@ namespace
 	class OccluderObjectUpdate
 	{
 	public:
-		void operator()(SceneObject& obj, float app_time, float /*elapsed_time*/)
+		void operator()(SceneNode& node, float app_time, float /*elapsed_time*/)
 		{
-			obj.ModelMatrix(MathLib::scaling(5.0f, 5.0f, 5.0f) * MathLib::translation(5.0f, 5.0f, 0.0f) * MathLib::rotation_y(-app_time / 1.5f));
+			node.ModelMatrix(MathLib::scaling(5.0f, 5.0f, 5.0f) * MathLib::translation(5.0f, 5.0f, 0.0f) * MathLib::rotation_y(-app_time / 1.5f));
 		}
 	};
 
@@ -539,9 +539,9 @@ void ShadowCubeMap::InputHandler(InputEngine const & /*sender*/, InputAction con
 void ShadowCubeMap::ScaleFactorChangedHandler(KlayGE::UISlider const & sender)
 {
 	esm_scale_factor_ = static_cast<float>(sender.GetValue());
-	for (size_t i = 0; i < scene_objs_.size(); ++ i)
+	for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 	{
-		checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->ScaleFactor(esm_scale_factor_);
+		checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->ScaleFactor(esm_scale_factor_);
 	}
 
 	std::wostringstream stream;
@@ -596,16 +596,16 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 			{
 				if (scene_model_->HWResourceReady())
 				{
-					auto so = MakeSharedPtr<SceneObject>(scene_model_, SceneObject::SOA_Cullable);
-					so->AddToSceneManager();
+					auto node = MakeSharedPtr<SceneNode>(scene_model_, SceneNode::SOA_Cullable);
+					node->AddToSceneManager();
 
-					for (uint32_t i = 0; i < so->NumChildren(); ++ i)
+					for (auto const & child : node->Children())
 					{
-						checked_pointer_cast<OccluderMesh>(so->Child(i)->GetRenderable())->LampTexture(lamp_tex_);
-						checked_pointer_cast<OccluderMesh>(so->Child(i)->GetRenderable())->CubeSMTexture(shadow_cube_tex_);
-						checked_pointer_cast<OccluderMesh>(so->Child(i)->GetRenderable())->DPSMTexture(shadow_dual_tex_);
-						checked_pointer_cast<OccluderMesh>(so->Child(i)->GetRenderable())->ScaleFactor(esm_scale_factor_);
-						scene_objs_.push_back(so->Child(i));
+						checked_pointer_cast<OccluderMesh>(child->GetRenderable())->LampTexture(lamp_tex_);
+						checked_pointer_cast<OccluderMesh>(child->GetRenderable())->CubeSMTexture(shadow_cube_tex_);
+						checked_pointer_cast<OccluderMesh>(child->GetRenderable())->DPSMTexture(shadow_dual_tex_);
+						checked_pointer_cast<OccluderMesh>(child->GetRenderable())->ScaleFactor(esm_scale_factor_);
+						scene_nodes_.push_back(child);
 					}
 
 					loading_percentage_ = 90;
@@ -620,14 +620,14 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 			}
 			else
 			{
-				auto so = MakeSharedPtr<SceneObject>(teapot_model_->Subrenderable(0), SceneObject::SOA_Cullable | SceneObject::SOA_Moveable);
-				so->BindSubThreadUpdateFunc(OccluderObjectUpdate());
-				so->AddToSceneManager();
-				checked_pointer_cast<OccluderMesh>(so->GetRenderable())->LampTexture(lamp_tex_);
-				checked_pointer_cast<OccluderMesh>(so->GetRenderable())->CubeSMTexture(shadow_cube_tex_);
-				checked_pointer_cast<OccluderMesh>(so->GetRenderable())->DPSMTexture(shadow_dual_tex_);
-				checked_pointer_cast<OccluderMesh>(so->GetRenderable())->ScaleFactor(esm_scale_factor_);
-				scene_objs_.push_back(so);
+				auto node = MakeSharedPtr<SceneNode>(teapot_model_->Subrenderable(0), SceneNode::SOA_Cullable | SceneNode::SOA_Moveable);
+				node->BindSubThreadUpdateFunc(OccluderObjectUpdate());
+				node->AddToSceneManager();
+				checked_pointer_cast<OccluderMesh>(node->GetRenderable())->LampTexture(lamp_tex_);
+				checked_pointer_cast<OccluderMesh>(node->GetRenderable())->CubeSMTexture(shadow_cube_tex_);
+				checked_pointer_cast<OccluderMesh>(node->GetRenderable())->DPSMTexture(shadow_dual_tex_);
+				checked_pointer_cast<OccluderMesh>(node->GetRenderable())->ScaleFactor(esm_scale_factor_);
+				scene_nodes_.push_back(node);
 
 				loading_percentage_ = 100;
 			}
@@ -651,10 +651,10 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 				renderEngine.BindFrameBuffer(shadow_dual_buffers_[pass]);
 				renderEngine.CurFrameBuffer()->Clear(FrameBuffer::CBM_Color | FrameBuffer::CBM_Depth, Color(0.0f, 0.0f, 0.0f, 1), 1.0f, 0);
 
-				for (size_t i = 0; i < scene_objs_.size(); ++ i)
+				for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 				{
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->LightSrc(light_);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->LightSrc(light_);
 				}
 			}
 			return App3DFramework::URV_NeedFlush;
@@ -675,9 +675,9 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 				shadow_dual_texs_[0]->CopyToSubTexture2D(*shadow_dual_tex_, 0, 0, 0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0, 0, 0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 				shadow_dual_texs_[1]->CopyToSubTexture2D(*shadow_dual_tex_, 0, 0, SHADOW_MAP_SIZE, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0, 0, 0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 
-				for (size_t i = 0; i < scene_objs_.size(); ++ i)
+				for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 				{
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
 				}
 			}
 			return App3DFramework::URV_NeedFlush | App3DFramework::URV_Finished;
@@ -706,10 +706,10 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 
 				shadow_cube_buffer_->GetViewport()->camera = light_->SMCamera(pass);
 
-				for (size_t i = 0; i < scene_objs_.size(); ++ i)
+				for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 				{
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->LightSrc(light_);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->LightSrc(light_);
 				}
 			}
 			return App3DFramework::URV_NeedFlush;
@@ -727,9 +727,9 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 				}
 				renderEngine.CurFrameBuffer()->Clear(FrameBuffer::CBM_Color | FrameBuffer::CBM_Depth, clear_clr, 1.0f, 0);
 
-				for (size_t i = 0; i < scene_objs_.size(); ++ i)
+				for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 				{
-					checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
+					checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
 				}
 			}
 			return App3DFramework::URV_NeedFlush | App3DFramework::URV_Finished;
@@ -748,10 +748,10 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 					renderEngine.BindFrameBuffer(shadow_cube_one_buffer_);
 					renderEngine.CurFrameBuffer()->Clear(FrameBuffer::CBM_Color | FrameBuffer::CBM_Depth, Color(0.0f, 0.0f, 0.0f, 1), 1.0f, 0);
 
-					for (size_t i = 0; i < scene_objs_.size(); ++ i)
+					for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 					{
-						checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
-						checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->LightSrc(light_);
+						checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(true, sm_type_, pass);
+						checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->LightSrc(light_);
 					}
 				}
 				return App3DFramework::URV_NeedFlush;
@@ -778,9 +778,9 @@ uint32_t ShadowCubeMap::DoUpdate(uint32_t pass)
 					}
 					renderEngine.CurFrameBuffer()->Clear(FrameBuffer::CBM_Color | FrameBuffer::CBM_Depth, clear_clr, 1.0f, 0);
 
-					for (size_t i = 0; i < scene_objs_.size(); ++ i)
+					for (size_t i = 0; i < scene_nodes_.size(); ++ i)
 					{
-						checked_pointer_cast<OccluderMesh>(scene_objs_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
+						checked_pointer_cast<OccluderMesh>(scene_nodes_[i]->GetRenderable())->GenShadowMapPass(false, sm_type_, pass);
 					}
 				}
 				return App3DFramework::URV_NeedFlush | App3DFramework::URV_Finished;

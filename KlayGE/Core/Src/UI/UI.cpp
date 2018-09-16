@@ -28,7 +28,7 @@
 #include <KlayGE/InputFactory.hpp>
 #include <KlayGE/Context.hpp>
 #include <KlayGE/ResLoader.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KFL/XMLDom.hpp>
 #include <KlayGE/Font.hpp>
 #include <KlayGE/TransientBuffer.hpp>
@@ -933,7 +933,7 @@ namespace KlayGE
 		{
 			if (!checked_pointer_cast<UIRectRenderable>(rect.second)->Empty())
 			{
-				auto ui_rect_obj = MakeSharedPtr<SceneObject>(rect.second, SceneObject::SOA_Overlay);
+				auto ui_rect_obj = MakeSharedPtr<SceneNode>(rect.second, SceneNode::SOA_Overlay);
 				ui_rect_obj->AddToSceneManager();
 			}
 		}

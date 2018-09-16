@@ -133,12 +133,12 @@ namespace KlayGE
 		LightSourcePtr ambient_light_;
 		LightSourcePtr main_light_;
 
-		SceneObjectPtr model_;
-		SceneObjectPtr skeleton_model_;
-		SceneObjectPtr imposter_;
-		SceneObjectPtr axis_;
-		SceneObjectPtr grid_;
-		SceneObjectPtr sky_box_;
+		SceneNodePtr model_;
+		SceneNodePtr skeleton_model_;
+		SceneNodePtr imposter_;
+		SceneNodePtr axis_;
+		SceneNodePtr grid_;
+		SceneNodePtr sky_box_;
 
 		FirstPersonCameraController fps_controller_;
 		TrackballCameraController tb_controller_;
@@ -165,7 +165,7 @@ namespace KlayGE
 		TexturePtr selective_cpu_tex_;
 		bool update_selective_buffer_;
 		uint32_t selected_obj_;
-		SceneObjectPtr selected_bb_;
+		SceneNodePtr selected_bb_;
 
 		UpdateSelectEntityEvent update_select_entity_event_;
 	};

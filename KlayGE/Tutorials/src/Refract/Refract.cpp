@@ -15,7 +15,7 @@
 #include <KlayGE/RenderableHelper.hpp>
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/Mesh.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Camera.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/PostProcess.hpp>
@@ -124,11 +124,11 @@ namespace
 		RenderTechnique* front_face_tech_;
 	};
 
-	class RefractorObject : public SceneObject
+	class RefractorObject : public SceneNode
 	{
 	public:
 		RefractorObject(TexturePtr const & y_cube, TexturePtr const & c_cube)
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			auto renderable = SyncLoadModel("teapot.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<RenderModel>(), CreateMeshFactory<RefractorRenderable>())->Subrenderable(0);

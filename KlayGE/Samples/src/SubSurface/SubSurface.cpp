@@ -4,7 +4,7 @@
 #include <KFL/Math.hpp>
 #include <KlayGE/Font.hpp>
 #include <KlayGE/RenderableHelper.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/RenderEngine.hpp>
 #include <KlayGE/FrameBuffer.hpp>
 #include <KlayGE/SceneManager.hpp>
@@ -30,11 +30,11 @@ using namespace std;
 
 namespace
 {
-	class ModelObject : public SceneObject
+	class ModelObject : public SceneNode
 	{
 	public:
 		ModelObject()
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			this->AddRenderable(SyncLoadModel("Dragon.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<DetailedModel>(), CreateMeshFactory<DetailedMesh>()));

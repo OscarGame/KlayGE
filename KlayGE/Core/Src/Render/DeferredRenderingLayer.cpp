@@ -39,7 +39,7 @@
 #include <KlayGE/RenderEffect.hpp>
 #include <KlayGE/FrameBuffer.hpp>
 #include <KlayGE/Context.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/SceneManager.hpp>
 #include <KlayGE/RenderFactory.hpp>
 #include <KlayGE/App3D.hpp>
@@ -1538,38 +1538,38 @@ namespace KlayGE
 		has_reflective_objs_ = false;
 		has_simple_forward_objs_ = false;
 		has_vdm_objs_ = false;
-		visible_scene_objs_.clear();
-		uint32_t const num_scene_objs = scene_mgr.NumSceneObjects();
-		for (uint32_t i = 0; i < num_scene_objs; ++ i)
+		visible_scene_nodes_.clear();
+		uint32_t const num_scene_nodes = scene_mgr.NumSceneNodes();
+		for (uint32_t i = 0; i < num_scene_nodes; ++ i)
 		{
-			SceneObject* so = scene_mgr.GetSceneObject(i).get();
-			if (so->Visible())
+			SceneNode* node = scene_mgr.GetSceneNode(i).get();
+			if (node->Visible())
 			{
-				visible_scene_objs_.push_back(so);
+				visible_scene_nodes_.push_back(node);
 
 				has_opaque_objs = true;
 
-				if (so->TransparencyBackFace())
+				if (node->TransparencyBackFace())
 				{
 					has_transparency_back_objs = true;
 				}
-				if (so->TransparencyFrontFace())
+				if (node->TransparencyFrontFace())
 				{
 					has_transparency_front_objs = true;
 				}
-				if (so->SSS())
+				if (node->SSS())
 				{
 					has_sss_objs_ = true;
 				}
-				if (so->Reflection())
+				if (node->Reflection())
 				{
 					has_reflective_objs_ = true;
 				}
-				if (so->SimpleForward())
+				if (node->SimpleForward())
 				{
 					has_simple_forward_objs_ = true;
 				}
-				if (so->VDM())
+				if (node->VDM())
 				{
 					has_vdm_objs_ = true;
 				}
@@ -4060,9 +4060,9 @@ namespace KlayGE
 
 		auto const pass_tb = GetPassTargetBuffer(pass_type);
 
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			deo->Pass(pass_type);
+			node->Pass(pass_type);
 		}
 
 		re.ForceLineMode(force_line_mode_);
@@ -4144,9 +4144,9 @@ namespace KlayGE
 		auto& re = rf.RenderEngineInstance();
 		auto& scene_mgr = Context::Instance().SceneManagerInstance();
 
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			deo->Pass(pass_type);
+			node->Pass(pass_type);
 		}
 
 		auto const & light = *lights_[org_no];
@@ -4316,9 +4316,9 @@ namespace KlayGE
 
 		auto const pass_tb = GetPassTargetBuffer(pass_type);
 
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			deo->Pass(pass_type);
+			node->Pass(pass_type);
 		}
 
 		re.BindFrameBuffer(pvp.reflection_fb);
@@ -4333,11 +4333,11 @@ namespace KlayGE
 
 		BOOST_ASSERT(has_vdm_objs_);
 
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			if (deo->VDM())
+			if (node->VDM())
 			{
-				deo->Pass(PT_VDM);
+				node->Pass(PT_VDM);
 			}
 		}
 
@@ -4356,9 +4356,9 @@ namespace KlayGE
 
 		auto const pass_tb = GetPassTargetBuffer(pass_type);
 		
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			deo->Pass(pass_type);
+			node->Pass(pass_type);
 		}
 
 		if (PTB_Opaque == pass_tb)
@@ -4440,11 +4440,11 @@ namespace KlayGE
 
 	uint32_t DeferredRenderingLayer::SimpleForwardDRJob()
 	{
-		for (auto const & deo : visible_scene_objs_)
+		for (auto const & node : visible_scene_nodes_)
 		{
-			if (deo->SimpleForward())
+			if (node->SimpleForward())
 			{
-				deo->Pass(PT_SimpleForward);
+				node->Pass(PT_SimpleForward);
 			}
 		}
 

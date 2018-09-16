@@ -7,8 +7,8 @@
 #include <KlayGE/InputFactory.hpp>
 #include <KlayGE/RenderEngine.hpp>
 #include <KlayGE/RenderEffect.hpp>
-#include <KlayGE/SceneObject.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNode.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Camera.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/PostProcess.hpp>
@@ -235,7 +235,7 @@ void ScreenSpaceReflectionApp::OnCreate()
 	point_light_->Falloff(float3(1, 0, 0.3f));
 	point_light_->AddToSceneManager();
 
-	auto scene_obj = MakeSharedPtr<SceneObject>(dino_model, SceneObject::SOA_Cullable);
+	auto scene_obj = MakeSharedPtr<SceneNode>(dino_model, SceneNode::SOA_Cullable);
 	scene_obj->ModelMatrix(MathLib::scaling(float3(2, 2, 2)) * MathLib::translation(0.0f, 1.0f, -2.5f));
 	scene_obj->AddToSceneManager();
 
@@ -382,7 +382,7 @@ uint32_t ScreenSpaceReflectionApp::DoUpdate(KlayGE::uint32_t pass)
 			{
 				if (teapot_model_->HWResourceReady())
 				{
-					teapot_ = MakeSharedPtr<SceneObject>(teapot_model_->Subrenderable(0), SceneObject::SOA_Cullable);
+					teapot_ = MakeSharedPtr<SceneNode>(teapot_model_->Subrenderable(0), SceneNode::SOA_Cullable);
 					teapot_->ModelMatrix(MathLib::scaling(float3(15, 15, 15)));
 					teapot_->AddToSceneManager();
 

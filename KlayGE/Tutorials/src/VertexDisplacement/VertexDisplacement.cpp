@@ -12,7 +12,7 @@
 #include <KlayGE/Context.hpp>
 #include <KlayGE/ResLoader.hpp>
 #include <KlayGE/RenderSettings.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Camera.hpp>
 
@@ -68,11 +68,11 @@ namespace
 		}
 	};
 
-	class FlagObject : public SceneObject
+	class FlagObject : public SceneNode
 	{
 	public:
 		FlagObject(int length_segs, int width_segs)
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			this->AddRenderable(MakeSharedPtr<FlagRenderable>(length_segs, width_segs));
 		}

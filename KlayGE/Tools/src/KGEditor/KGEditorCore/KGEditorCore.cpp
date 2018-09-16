@@ -10,7 +10,7 @@
 #include <KlayGE/RenderEffect.hpp>
 #include <KlayGE/RenderableHelper.hpp>
 #include <KlayGE/Camera.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/DeferredRenderingLayer.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Mesh.hpp>
@@ -558,12 +558,12 @@ namespace KlayGE
 
 		deferred_rendering_ = Context::Instance().DeferredRenderingLayerInstance();
 
-		axis_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderAxis>(),
-			SceneObject::SOA_Cullable | SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		axis_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderAxis>(),
+			SceneNode::SOA_Cullable | SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		axis_->AddToSceneManager();
 
-		grid_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderGrid>(),
-			SceneObject::SOA_Cullable | SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		grid_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderGrid>(),
+			SceneNode::SOA_Cullable | SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		grid_->AddToSceneManager();
 
 		sky_box_ = MakeSharedPtr<SceneObjectSkyBox>();
@@ -572,24 +572,24 @@ namespace KlayGE
 			SyncLoadTexture("default_bg_c.dds", EAH_GPU_Read | EAH_Immutable));
 		sky_box_->AddToSceneManager();
 
-		selected_bb_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderableLineBox>(),
-			SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		selected_bb_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderableLineBox>(),
+			SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		selected_bb_->Visible(false);
 		selected_bb_->AddToSceneManager();
 		checked_pointer_cast<RenderableLineBox>(selected_bb_->GetRenderable())->SetColor(Color(1, 1, 1, 1));
 
-		translation_axis_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderableTranslationAxis>(),
-			SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		translation_axis_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderableTranslationAxis>(),
+			SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		translation_axis_->Visible(false);
 		translation_axis_->AddToSceneManager();
 
-		rotation_axis_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderableRotationAxis>(),
-			SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		rotation_axis_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderableRotationAxis>(),
+			SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		rotation_axis_->Visible(false);
 		rotation_axis_->AddToSceneManager();
 
-		scaling_axis_ = MakeSharedPtr<SceneObject>(MakeSharedPtr<RenderableScalingAxis>(),
-			SceneObject::SOA_Moveable | SceneObject::SOA_NotCastShadow);
+		scaling_axis_ = MakeSharedPtr<SceneNode>(MakeSharedPtr<RenderableScalingAxis>(),
+			SceneNode::SOA_Moveable | SceneNode::SOA_NotCastShadow);
 		scaling_axis_->Visible(false);
 		scaling_axis_->AddToSceneManager();
 
@@ -865,8 +865,8 @@ namespace KlayGE
 		ResLoader::Instance().AddPath(meshml_name.substr(0, meshml_name.find_last_of('\\')));
 
 		RenderModelPtr model = SyncLoadModel(meshml_name, EAH_GPU_Read | EAH_Immutable);
-		auto scene_obj = MakeSharedPtr<SceneObject>(model,
-			SceneObject::SOA_Cullable | SceneObject::SOA_Moveable);
+		auto scene_obj = MakeSharedPtr<SceneNode>(model,
+			SceneNode::SOA_Cullable | SceneNode::SOA_Moveable);
 		scene_obj->AddToSceneManager();
 		for (size_t i = 0; i < model->NumSubrenderables(); ++ i)
 		{
@@ -955,7 +955,7 @@ namespace KlayGE
 		light->Falloff(float3(1, 0, 1));
 		light->AddToSceneManager();
 
-		SceneObjectPtr light_proxy = MakeSharedPtr<SceneObjectLightSourceProxy>(light);
+		SceneNodePtr light_proxy = MakeSharedPtr<SceneObjectLightSourceProxy>(light);
 		light_proxy->AddToSceneManager();
 
 		uint32_t const entity_id = last_entity_id_ + 1;
@@ -1010,7 +1010,7 @@ namespace KlayGE
 		CameraPtr camera = MakeSharedPtr<Camera>();
 		camera->AddToSceneManager();
 
-		SceneObjectPtr camera_proxy = MakeSharedPtr<SceneObjectCameraProxy>(camera);
+		SceneNodePtr camera_proxy = MakeSharedPtr<SceneObjectCameraProxy>(camera);
 		camera_proxy->AddToSceneManager();
 
 		uint32_t const entity_id = last_entity_id_ + 1;

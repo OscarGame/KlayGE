@@ -7,8 +7,8 @@
 #include <KlayGE/InputFactory.hpp>
 #include <KlayGE/RenderEngine.hpp>
 #include <KlayGE/RenderEffect.hpp>
-#include <KlayGE/SceneObject.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNode.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Camera.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/PostProcess.hpp>
@@ -191,12 +191,12 @@ void AtmosphericScatteringApp::OnCreate()
 
 	RenderModelPtr model_planet = SyncLoadModel("geosphere.meshml", EAH_GPU_Read | EAH_Immutable,
 		CreateModelFactory<RenderModel>(), CreateMeshFactory<PlanetMesh>());
-	planet_ = MakeSharedPtr<SceneObject>(model_planet->Subrenderable(0), SceneObject::SOA_Cullable);
+	planet_ = MakeSharedPtr<SceneNode>(model_planet->Subrenderable(0), SceneNode::SOA_Cullable);
 	planet_->AddToSceneManager();
 
 	RenderModelPtr model_atmosphere = SyncLoadModel("geosphere.meshml", EAH_GPU_Read | EAH_Immutable,
 		CreateModelFactory<RenderModel>(), CreateMeshFactory<AtmosphereMesh>());
-	atmosphere_ = MakeSharedPtr<SceneObject>(model_atmosphere->Subrenderable(0), SceneObject::SOA_Cullable);
+	atmosphere_ = MakeSharedPtr<SceneNode>(model_atmosphere->Subrenderable(0), SceneNode::SOA_Cullable);
 	atmosphere_->AddToSceneManager();
 
 	UIManager::Instance().Load(ResLoader::Instance().Open("AtmosphericScattering.uiml"));

@@ -15,7 +15,7 @@
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/Texture.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/PostProcess.hpp>
 #include <KlayGE/Light.hpp>
 #include <KlayGE/Camera.hpp>
@@ -172,14 +172,14 @@ void SSSSSApp::OnCreate()
 		});
 	this->TranslucencyStrengthChangedHandler(*dialog_params_->Control<UISlider>(id_translucency_strength_slider_));
 
-	auto subsurface_obj = MakeSharedPtr<SceneObject>(sss_model, SceneObject::SOA_Cullable);
+	auto subsurface_obj = MakeSharedPtr<SceneNode>(sss_model, SceneNode::SOA_Cullable);
 	subsurface_obj->ModelMatrix(MathLib::translation(0.0f, 5.0f, 0.0f));
 	subsurface_obj->AddToSceneManager();
 
-	auto scene_obj = MakeSharedPtr<SceneObject>(scene_model, SceneObject::SOA_Cullable);
+	auto scene_obj = MakeSharedPtr<SceneNode>(scene_model, SceneNode::SOA_Cullable);
 	scene_obj->AddToSceneManager();
 
-	SceneObjectSkyBoxPtr sky_box = MakeSharedPtr<SceneObjectSkyBox>();
+	auto sky_box = MakeSharedPtr<SceneObjectSkyBox>();
 	sky_box->CompressedCubeMap(y_cube, c_cube);
 	sky_box->AddToSceneManager();
 }

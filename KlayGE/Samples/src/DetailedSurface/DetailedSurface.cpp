@@ -15,7 +15,7 @@
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/GraphicsBuffer.hpp>
 #include <KlayGE/Light.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/JudaTexture.hpp>
 #include <KlayGE/Camera.hpp>
 
@@ -334,11 +334,11 @@ namespace
 		bool wireframe_;
 	};
 
-	class PolygonObject : public SceneObject
+	class PolygonObject : public SceneNode
 	{
 	public:
 		PolygonObject()
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			this->AddRenderable(SyncLoadModel("teapot.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<RenderDetailedModel>(), CreateMeshFactory<RenderPolygon>()));
@@ -346,7 +346,7 @@ namespace
 
 		bool MainThreadUpdate(float app_time, float elapsed_time) override
 		{
-			return SceneObject::MainThreadUpdate(app_time, elapsed_time);
+			return SceneNode::MainThreadUpdate(app_time, elapsed_time);
 		}
 
 		void LightPos(float3 const & light_pos)

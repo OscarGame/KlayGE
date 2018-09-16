@@ -59,15 +59,15 @@ namespace KlayGE
 		LightSourcePtr& GetLight(uint32_t index);
 		LightSourcePtr const & GetLight(uint32_t index) const;
 
-		void AddSceneObject(SceneObjectPtr const & obj);
-		void AddSceneObjectLocked(SceneObjectPtr const & obj);
-		void DelSceneObject(SceneObjectPtr const & obj);
-		void DelSceneObjectLocked(SceneObjectPtr const & obj);
+		void AddSceneNode(SceneNodePtr const & obj);
+		void AddSceneNodeLocked(SceneNodePtr const & obj);
+		void DelSceneNode(SceneNodePtr const & obj);
+		void DelSceneNodeLocked(SceneNodePtr const & obj);
 		void AddRenderable(Renderable* obj);
 
-		uint32_t NumSceneObjects() const;
-		SceneObjectPtr& GetSceneObject(uint32_t index);
-		SceneObjectPtr const & GetSceneObject(uint32_t index) const;
+		uint32_t NumSceneNodes() const;
+		SceneNodePtr& GetSceneNode(uint32_t index);
+		SceneNodePtr const & GetSceneNode(uint32_t index) const;
 
 		virtual BoundOverlap AABBVisible(AABBox const & aabb) const;
 		virtual BoundOverlap OBBVisible(OBBox const & obb) const;
@@ -92,24 +92,24 @@ namespace KlayGE
 
 		std::vector<CameraPtr>::iterator DelCamera(std::vector<CameraPtr>::iterator iter);
 		std::vector<LightSourcePtr>::iterator DelLight(std::vector<LightSourcePtr>::iterator iter);
-		std::vector<SceneObjectPtr>::iterator DelSceneObject(std::vector<SceneObjectPtr>::iterator iter);
-		std::vector<SceneObjectPtr>::iterator DelSceneObjectLocked(std::vector<SceneObjectPtr>::iterator iter);
-		virtual void OnAddSceneObject(SceneObjectPtr const & obj) = 0;
-		virtual void OnDelSceneObject(std::vector<SceneObjectPtr>::iterator iter) = 0;
+		std::vector<SceneNodePtr>::iterator DelSceneNode(std::vector<SceneNodePtr>::iterator iter);
+		std::vector<SceneNodePtr>::iterator DelSceneNodeLocked(std::vector<SceneNodePtr>::iterator iter);
+		virtual void OnAddSceneNode(SceneNodePtr const & node) = 0;
+		virtual void OnDelSceneNode(std::vector<SceneNodePtr>::iterator iter) = 0;
 		virtual void DoSuspend() = 0;
 		virtual void DoResume() = 0;
 
 		void UpdateThreadFunc();
 
-		BoundOverlap VisibleTestFromParent(SceneObject* obj, float3 const & view_dir, float3 const & eye_pos,
+		BoundOverlap VisibleTestFromParent(SceneNode* node, float3 const & view_dir, float3 const & eye_pos,
 			float4x4 const & view_proj);
 
 	protected:
 		std::vector<CameraPtr> cameras_;
 		Frustum const * frustum_;
 		std::vector<LightSourcePtr> lights_;
-		std::vector<SceneObjectPtr> scene_objs_;
-		std::vector<SceneObjectPtr> overlay_scene_objs_;
+		std::vector<SceneNodePtr> scene_nodes_;
+		std::vector<SceneNodePtr> overlay_scene_nodes_;
 
 		std::unordered_map<size_t, std::shared_ptr<std::vector<BoundOverlap>>> visible_marks_map_;
 

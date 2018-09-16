@@ -15,7 +15,7 @@
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/Mesh.hpp>
 #include <KlayGE/RenderableHelper.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/ElementFormat.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/Camera.hpp>
@@ -254,11 +254,11 @@ namespace
 		TexturePtr noise_vol_tex_;
 	};
 
-	class ParticlesObject : public SceneObject
+	class ParticlesObject : public SceneNode
 	{
 	public:
 		explicit ParticlesObject(int max_num_particles)
-			: SceneObject(MakeSharedPtr<RenderParticles>(max_num_particles), SOA_Moveable)
+			: SceneNode(MakeSharedPtr<RenderParticles>(max_num_particles), SOA_Moveable)
 		{
 		}
 
@@ -752,11 +752,11 @@ namespace
 		}
 	};
 
-	class TerrainObject : public SceneObject
+	class TerrainObject : public SceneNode
 	{
 	public:
 		TerrainObject(TexturePtr const & height_map, TexturePtr const & normal_map)
-			: SceneObject(MakeSharedPtr<TerrainRenderable>(height_map, normal_map), SOA_Cullable)
+			: SceneNode(MakeSharedPtr<TerrainRenderable>(height_map, normal_map), SOA_Cullable)
 		{
 		}
 	};

@@ -14,7 +14,7 @@
 #include <KlayGE/RenderableHelper.hpp>
 #include <KlayGE/RenderSettings.hpp>
 #include <KlayGE/Mesh.hpp>
-#include <KlayGE/SceneObjectHelper.hpp>
+#include <KlayGE/SceneNodeHelper.hpp>
 #include <KlayGE/Camera.hpp>
 #include <KlayGE/UI.hpp>
 #include <KlayGE/PostProcess.hpp>
@@ -223,11 +223,11 @@ namespace
 		float distance_;
 	};
 
-	class SphereObject : public SceneObject
+	class SphereObject : public SceneNode
 	{
 	public:
 		SphereObject(float4 const & diff, float4 const & spec, float glossiness, uint32_t id)
-			: SceneObject(SOA_Cullable)
+			: SceneNode(SOA_Cullable)
 		{
 			auto renderable = SyncLoadModel("sphere_high.meshml", EAH_GPU_Read | EAH_Immutable,
 				CreateModelFactory<RenderModel>(), CreateMeshFactory<SphereRenderable>())->Subrenderable(0);

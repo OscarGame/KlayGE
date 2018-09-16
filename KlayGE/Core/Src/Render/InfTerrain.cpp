@@ -149,7 +149,7 @@ namespace KlayGE
 
 
 	InfTerrainSceneObject::InfTerrainSceneObject()
-		: SceneObject(SOA_Moveable)
+		: SceneNode(SOA_Moveable)
 	{
 	}
 
@@ -716,7 +716,7 @@ namespace KlayGE
 
 
 	HQTerrainSceneObject::HQTerrainSceneObject(RenderablePtr const & renderable)
-		: SceneObject(renderable, SOA_Moveable),
+		: SceneNode(renderable, SOA_Moveable),
 			reset_terrain_(true)
 	{
 		RenderEngine& re = Context::Instance().RenderFactoryInstance().RenderEngineInstance();
