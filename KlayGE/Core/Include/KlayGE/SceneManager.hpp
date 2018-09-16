@@ -23,6 +23,7 @@
 
 #include <KlayGE/PreDeclare.hpp>
 
+#include <KlayGE/SceneNode.hpp>
 #include <KlayGE/Renderable.hpp>
 #include <KFL/Frustum.hpp>
 #include <KFL/Thread.hpp>
@@ -59,14 +60,32 @@ namespace KlayGE
 		LightSourcePtr& GetLight(uint32_t index);
 		LightSourcePtr const & GetLight(uint32_t index) const;
 
-		void AddSceneNode(SceneNodePtr const & obj);
-		void AddSceneNodeLocked(SceneNodePtr const & obj);
-		void DelSceneNode(SceneNodePtr const & obj);
-		void DelSceneNodeLocked(SceneNodePtr const & obj);
+		SceneNode* SceneRootNode()
+		{
+			return &scene_root_;
+		}
+		SceneNode const * SceneRootNode() const
+		{
+			return &scene_root_;
+		}
+
+		SceneNode* OverlayRootNode()
+		{
+			return &overlay_root_;
+		}
+		SceneNode const * OverlayRootNode() const
+		{
+			return &overlay_root_;
+		}
+
+		void AddSceneNode(SceneNodePtr const & node);
+		void AddSceneNodeLocked(SceneNodePtr const & node);
+		void DelSceneNode(SceneNodePtr const & node);
+		void DelSceneNodeLocked(SceneNodePtr const & node);
+
 		void AddRenderable(Renderable* obj);
 
 		uint32_t NumSceneNodes() const;
-		SceneNodePtr& GetSceneNode(uint32_t index);
 		SceneNodePtr const & GetSceneNode(uint32_t index) const;
 
 		virtual BoundOverlap AABBVisible(AABBox const & aabb) const;
@@ -92,10 +111,8 @@ namespace KlayGE
 
 		std::vector<CameraPtr>::iterator DelCamera(std::vector<CameraPtr>::iterator iter);
 		std::vector<LightSourcePtr>::iterator DelLight(std::vector<LightSourcePtr>::iterator iter);
-		std::vector<SceneNodePtr>::iterator DelSceneNode(std::vector<SceneNodePtr>::iterator iter);
-		std::vector<SceneNodePtr>::iterator DelSceneNodeLocked(std::vector<SceneNodePtr>::iterator iter);
 		virtual void OnAddSceneNode(SceneNodePtr const & node) = 0;
-		virtual void OnDelSceneNode(std::vector<SceneNodePtr>::iterator iter) = 0;
+		virtual void OnDelSceneNode(SceneNodePtr const & node) = 0;
 		virtual void DoSuspend() = 0;
 		virtual void DoResume() = 0;
 
@@ -108,8 +125,8 @@ namespace KlayGE
 		std::vector<CameraPtr> cameras_;
 		Frustum const * frustum_;
 		std::vector<LightSourcePtr> lights_;
-		std::vector<SceneNodePtr> scene_nodes_;
-		std::vector<SceneNodePtr> overlay_scene_nodes_;
+		SceneNode scene_root_;
+		SceneNode overlay_root_;
 
 		std::unordered_map<size_t, std::shared_ptr<std::vector<BoundOverlap>>> visible_marks_map_;
 

@@ -29,6 +29,7 @@
  */
 
 #include <KlayGE/KlayGE.hpp>
+#include <KFL/CXX17/string_view.hpp>
 #include <KlayGE/SceneManager.hpp>
 #include <KlayGE/Context.hpp>
 #include <KFL/Math.hpp>
@@ -52,6 +53,12 @@ namespace KlayGE
 		}
 	}
 
+	SceneNode::SceneNode(std::wstring_view name, uint32_t attrib)
+		: SceneNode(attrib)
+	{
+		name_ = std::wstring(name);
+	}
+
 	SceneNode::SceneNode(RenderablePtr const & renderable, uint32_t attrib)
 		: SceneNode(attrib)
 	{
@@ -59,8 +66,86 @@ namespace KlayGE
 		this->OnAttachRenderable(false);
 	}
 
+	SceneNode::SceneNode(RenderablePtr const & renderable, std::wstring_view name, uint32_t attrib)
+		: SceneNode(renderable, attrib)
+	{
+		name_ = std::wstring(name);
+	}
+
 	SceneNode::~SceneNode()
 	{
+	}
+
+	std::wstring_view SceneNode::Name()
+	{
+		return name_;
+	}
+
+	void SceneNode::Name(std::wstring_view name)
+	{
+		name_ = std::wstring(name);
+	}
+
+	SceneNode* SceneNode::FindFirstNode(std::wstring_view name)
+	{
+		SceneNode* ret = nullptr;
+		if (name_ == name)
+		{
+			ret = this;
+		}
+		else
+		{
+			for (auto const & child : children_)
+			{
+				ret = child->FindFirstNode(name);
+				if (ret != nullptr)
+				{
+					break;
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	std::vector<SceneNode*> SceneNode::FindAllNode(std::wstring_view name)
+	{
+		std::vector<SceneNode*> ret;
+		this->FindAllNode(ret, name);
+		return ret;
+	}
+
+	void SceneNode::FindAllNode(std::vector<SceneNode*>& nodes, std::wstring_view name)
+	{
+		if (name_ == name)
+		{
+			nodes.push_back(this);
+		}
+
+		for (auto const & child : children_)
+		{
+			child->FindAllNode(nodes, name);
+		}
+	}
+
+	bool SceneNode::IsNodeInSubTree(SceneNode const * node)
+	{
+		if (node == this)
+		{
+			return true;
+		}
+		else
+		{
+			for (auto const & child : children_)
+			{
+				if (child->IsNodeInSubTree(node))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	SceneNode* SceneNode::Parent() const
@@ -72,15 +157,38 @@ namespace KlayGE
 	{
 		parent_ = so;
 	}
-	
-	std::vector<SceneNodePtr>& SceneNode::Children()
-	{
-		return children_;
-	}
 
 	std::vector<SceneNodePtr> const & SceneNode::Children() const
 	{
 		return children_;
+	}
+
+	SceneNodePtr const & SceneNode::GetChildNode(uint32_t i) const
+	{
+		BOOST_ASSERT(i < children_.size());
+		return children_[i];
+	}
+
+	void SceneNode::AddChild(SceneNodePtr const & node)
+	{
+		pos_aabb_dirty_ = true;
+		children_.push_back(node);
+	}
+
+	void SceneNode::RemoveChild(SceneNodePtr const & node)
+	{
+		auto iter = std::find(children_.begin(), children_.end(), node);
+		if (iter != children_.end())
+		{
+			pos_aabb_dirty_ = true;
+			children_.erase(iter);
+		}
+	}
+
+	void SceneNode::ClearChildren()
+	{
+		pos_aabb_dirty_ = true;
+		children_.clear();
 	}
 
 	uint32_t SceneNode::NumRenderables() const
@@ -111,6 +219,7 @@ namespace KlayGE
 		if (iter != renderables_.end())
 		{
 			renderables_.erase(iter);
+			renderables_hw_res_ready_.erase(renderables_hw_res_ready_.begin() + (iter - renderables_.begin()));
 			pos_aabb_dirty_ = true;
 		}
 	}
@@ -434,6 +543,15 @@ namespace KlayGE
 				for (size_t i = 1; i < renderables_.size(); ++ i)
 				{
 					*pos_aabb_os_ |= renderables_[i]->PosBound();
+				}
+
+				for (size_t i = 0; i < children_.size(); ++ i)
+				{
+					if (children_[i]->pos_aabb_os_)
+					{
+						children_[i]->UpdatePosBound();
+						*pos_aabb_os_ |= *children_[i]->pos_aabb_os_;
+					}
 				}
 			}
 

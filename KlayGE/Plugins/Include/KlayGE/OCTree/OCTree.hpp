@@ -50,8 +50,8 @@ namespace KlayGE
 		virtual void ClearObject() override;
 
 	private:
-		void OnAddSceneNode(SceneNodePtr const & obj) override;
-		void OnDelSceneNode(std::vector<SceneNodePtr>::iterator iter) override;
+		void OnAddSceneNode(SceneNodePtr const & node) override;
+		void OnDelSceneNode(SceneNodePtr const & node) override;
 		void DoSuspend() override;
 		void DoResume() override;
 

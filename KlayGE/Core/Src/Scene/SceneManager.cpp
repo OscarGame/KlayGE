@@ -48,7 +48,6 @@
 #include <KlayGE/Renderable.hpp>
 #include <KlayGE/RenderEffect.hpp>
 #include <KlayGE/Light.hpp>
-#include <KlayGE/SceneNode.hpp>
 #include <KlayGE/Input.hpp>
 #include <KlayGE/InputFactory.hpp>
 #include <KlayGE/FrameBuffer.hpp>
@@ -66,6 +65,8 @@ namespace KlayGE
 	/////////////////////////////////////////////////////////////////////////////////
 	SceneManager::SceneManager()
 		: frustum_(nullptr),
+			scene_root_(L"SceenRoot", SceneNode::SOA_Cullable),
+			overlay_root_(L"OverlayRoot", SceneNode::SOA_Cullable | SceneNode::SOA_Overlay),
 			small_obj_threshold_(0),
 			update_elapse_(1.0f / 60),
 			num_objects_rendered_(0), num_renderables_rendered_(0),
@@ -73,6 +74,8 @@ namespace KlayGE
 			num_draw_calls_(0), num_dispatch_calls_(0),
 			quit_(false), deferred_mode_(false)
 	{
+		scene_root_.VisibleMark(BO_Yes);
+		overlay_root_.VisibleMark(BO_Yes);
 	}
 
 	// 析构函数
@@ -125,7 +128,7 @@ namespace KlayGE
 			}
 		}
 
-		for (auto const & sn : scene_nodes_)
+		for (auto const & sn : scene_root_.Children())
 		{
 			auto node = sn.get();
 			BoundOverlap visible;
@@ -256,7 +259,7 @@ namespace KlayGE
 		uint32_t const attr = node->Attrib();
 		if (attr & SceneNode::SOA_Overlay)
 		{
-			overlay_scene_nodes_.push_back(node);
+			overlay_root_.AddChild(node);
 		}
 		else
 		{
@@ -266,7 +269,7 @@ namespace KlayGE
 				node->UpdateAbsModelMatrix();
 			}
 
-			scene_nodes_.push_back(node);
+			scene_root_.AddChild(node);
 			this->OnAddSceneNode(node);
 		}
 	}
@@ -281,26 +284,11 @@ namespace KlayGE
 
 	void SceneManager::DelSceneNodeLocked(SceneNodePtr const & node)
 	{
-		for (auto iter = scene_nodes_.begin(); iter != scene_nodes_.end(); ++ iter)
+		if (scene_root_.IsNodeInSubTree(node.get()))
 		{
-			if (*iter == node)
-			{
-				this->DelSceneNodeLocked(iter);
-				break;
-			}
+			this->OnDelSceneNode(node);
+			scene_root_.RemoveChild(node);
 		}
-	}
-
-	std::vector<SceneNodePtr>::iterator SceneManager::DelSceneNode(std::vector<SceneNodePtr>::iterator iter)
-	{
-		std::lock_guard<std::mutex> lock(update_mutex_);
-		return this->DelSceneNodeLocked(iter);
-	}
-
-	std::vector<SceneNodePtr>::iterator SceneManager::DelSceneNodeLocked(std::vector<SceneNodePtr>::iterator iter)
-	{
-		this->OnDelSceneNode(iter);
-		return scene_nodes_.erase(iter);
 	}
 
 	// 加入渲染队列
@@ -425,17 +413,12 @@ namespace KlayGE
 
 	uint32_t SceneManager::NumSceneNodes() const
 	{
-		return static_cast<uint32_t>(scene_nodes_.size());
-	}
-
-	SceneNodePtr& SceneManager::GetSceneNode(uint32_t index)
-	{
-		return scene_nodes_[index];
+		return static_cast<uint32_t>(scene_root_.Children().size());
 	}
 
 	SceneNodePtr const & SceneManager::GetSceneNode(uint32_t index) const
 	{
-		return scene_nodes_[index];
+		return scene_root_.Children()[index];
 	}
 
 	void SceneManager::ClearCamera()
@@ -451,8 +434,8 @@ namespace KlayGE
 	void SceneManager::ClearObject()
 	{
 		std::lock_guard<std::mutex> lock(update_mutex_);
-		scene_nodes_.clear();
-		overlay_scene_nodes_.clear();
+		scene_root_.ClearChildren();
+		overlay_root_.ClearChildren();
 	}
 
 	// 更新场景管理器
@@ -480,7 +463,7 @@ namespace KlayGE
 		{
 			std::lock_guard<std::mutex> lock(update_mutex_);
 
-			for (auto const & scene_node : scene_nodes_)
+			for (auto const & scene_node : scene_root_.Children())
 			{
 				if (scene_node->MainThreadUpdate(app_time, frame_time))
 				{
@@ -488,7 +471,7 @@ namespace KlayGE
 				}
 			}
 
-			overlay_scene_nodes_.clear();
+			overlay_root_.ClearChildren();
 			for (auto iter = lights_.begin(); iter != lights_.end();)
 			{
 				if ((*iter)->Attrib() & LightSource::LSA_Temporary)
@@ -551,7 +534,7 @@ namespace KlayGE
 		num_vertices_rendered_ = 0;
 
 		Camera& camera = app.ActiveCamera();
-		auto const & scene_nodes = (urt & App3DFramework::URV_Overlay) ? overlay_scene_nodes_ : scene_nodes_;
+		auto const & scene_nodes = (urt & App3DFramework::URV_Overlay) ? overlay_root_.Children() : scene_root_.Children();
 
 		for (auto const & scene_node : scene_nodes)
 		{
@@ -800,11 +783,11 @@ namespace KlayGE
 				{
 					std::lock_guard<std::mutex> lock(update_mutex_);
 
-					for (auto const & scene_node : scene_nodes_)
+					for (auto const & scene_node : scene_root_.Children())
 					{
 						scene_node->SubThreadUpdate(app_time, frame_time);
 					}
-					for (auto const & scene_node : overlay_scene_nodes_)
+					for (auto const & scene_node : overlay_root_.Children())
 					{
 						scene_node->SubThreadUpdate(app_time, frame_time);
 					}

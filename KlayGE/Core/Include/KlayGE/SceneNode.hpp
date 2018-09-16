@@ -54,14 +54,27 @@ namespace KlayGE
 
 	public:
 		explicit SceneNode(uint32_t attrib);
+		SceneNode(std::wstring_view name, uint32_t attrib);
 		SceneNode(RenderablePtr const & renderable, uint32_t attrib);
+		SceneNode(RenderablePtr const & renderable, std::wstring_view name, uint32_t attrib);
 		virtual ~SceneNode();
+
+		std::wstring_view Name();
+		void Name(std::wstring_view name);
+
+		SceneNode* FindFirstNode(std::wstring_view name);
+		std::vector<SceneNode*> FindAllNode(std::wstring_view name);
+
+		bool IsNodeInSubTree(SceneNode const * node);
 
 		SceneNode* Parent() const;
 		void Parent(SceneNode* node);
 
-		std::vector<SceneNodePtr>& Children();
 		std::vector<SceneNodePtr> const & Children() const;
+		SceneNodePtr const & GetChildNode(uint32_t i) const;
+		void AddChild(SceneNodePtr const & node);
+		void RemoveChild(SceneNodePtr const & node);
+		void ClearChildren();
 
 		uint32_t NumRenderables() const;
 		RenderablePtr const & GetRenderable() const;
@@ -81,9 +94,7 @@ namespace KlayGE
 		virtual void OnAttachRenderable(bool add_to_scene);
 
 		virtual void AddToSceneManager();
-		virtual void AddToSceneManagerLocked();
 		virtual void DelFromSceneManager();
-		virtual void DelFromSceneManagerLocked();
 
 		void BindSubThreadUpdateFunc(std::function<void(SceneNode&, float, float)> const & update_func);
 		void BindMainThreadUpdateFunc(std::function<void(SceneNode&, float, float)> const & update_func);
@@ -114,9 +125,16 @@ namespace KlayGE
 		bool VDM() const;
 
 	private:
+		void FindAllNode(std::vector<SceneNode*>& nodes, std::wstring_view name);
+
+		virtual void AddToSceneManagerLocked();
+		virtual void DelFromSceneManagerLocked();
+
 		void UpdatePosBound();
 
 	protected:
+		std::wstring name_;
+
 		uint32_t attrib_;
 
 		SceneNode* parent_;

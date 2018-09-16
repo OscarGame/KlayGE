@@ -120,7 +120,7 @@ namespace KlayGE
 			AABBox bb_root(float3(0, 0, 0), float3(0, 0, 0));
 			octree_[0].first_child_index = -1;
 			octree_[0].visible = BO_No;
-			for (auto const & sn : scene_nodes_)
+			for (auto const & sn : scene_root_.Children())
 			{
 				uint32_t const attr = sn->Attrib();
 				if ((attr & SceneNode::SOA_Cullable)
@@ -170,7 +170,7 @@ namespace KlayGE
 
 		if (camera.OmniDirectionalMode())
 		{
-			for (auto const & node : scene_nodes_)
+			for (auto const & node : scene_root_.Children())
 			{
 				if (node->Visible())
 				{
@@ -210,7 +210,7 @@ namespace KlayGE
 				this->MarkNodeObjs(0, false);
 			}
 
-			for (auto const & node : scene_nodes_)
+			for (auto const & node : scene_root_.Children())
 			{
 				if (node->Visible())
 				{
@@ -260,9 +260,9 @@ namespace KlayGE
 		rebuild_tree_ = true;
 	}
 
-	void OCTree::OnAddSceneNode(SceneNodePtr const & obj)
+	void OCTree::OnAddSceneNode(SceneNodePtr const & node)
 	{
-		uint32_t const attr = obj->Attrib();
+		uint32_t const attr = node->Attrib();
 		if ((attr & SceneNode::SOA_Cullable)
 			&& !(attr & SceneNode::SOA_Moveable))
 		{
@@ -270,11 +270,11 @@ namespace KlayGE
 		}
 	}
 
-	void OCTree::OnDelSceneNode(std::vector<SceneNodePtr>::iterator iter)
+	void OCTree::OnDelSceneNode(SceneNodePtr const & node)
 	{
-		BOOST_ASSERT(iter != scene_nodes_.end());
+		BOOST_ASSERT(node);
 
-		uint32_t const attr = (*iter)->Attrib();
+		uint32_t const attr = node->Attrib();
 		if ((attr & SceneNode::SOA_Cullable)
 			&& !(attr & SceneNode::SOA_Moveable))
 		{
