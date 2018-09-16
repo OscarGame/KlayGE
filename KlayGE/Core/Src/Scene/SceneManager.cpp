@@ -138,11 +138,6 @@ namespace KlayGE
 				visible = this->VisibleTestFromParent(node, camera.ForwardVec(), camera.EyePos(), view_proj);
 				if (BO_Partial == visible)
 				{
-					if (attr & SceneNode::SOA_Moveable)
-					{
-						node->UpdateAbsModelMatrix();
-					}
-
 					if (attr & SceneNode::SOA_Cullable)
 					{
 						if (small_obj_threshold_ > 0)
@@ -263,12 +258,6 @@ namespace KlayGE
 		}
 		else
 		{
-			if ((attr & SceneNode::SOA_Cullable)
-				&& !(attr & SceneNode::SOA_Moveable))
-			{
-				node->UpdateAbsModelMatrix();
-			}
-
 			scene_root_.AddChild(node);
 			this->OnAddSceneNode(node);
 		}
@@ -463,13 +452,7 @@ namespace KlayGE
 		{
 			std::lock_guard<std::mutex> lock(update_mutex_);
 
-			for (auto const & scene_node : scene_root_.Children())
-			{
-				if (scene_node->MainThreadUpdate(app_time, frame_time))
-				{
-					added_scene_nodes.push_back(scene_node);
-				}
-			}
+			scene_root_.UpdateNode(added_scene_nodes, app_time, frame_time);
 
 			overlay_root_.ClearChildren();
 			for (auto iter = lights_.begin(); iter != lights_.end();)
@@ -815,11 +798,6 @@ namespace KlayGE
 			else
 			{
 				uint32_t const attr = node->Attrib();
-				if (attr & SceneNode::SOA_Moveable)
-				{
-					node->UpdateAbsModelMatrix();
-				}
-
 				if (attr & SceneNode::SOA_Cullable)
 				{
 					if (small_obj_threshold_ > 0)

@@ -191,6 +191,21 @@ namespace KlayGE
 		children_.clear();
 	}
 
+	void SceneNode::UpdateNode(std::vector<SceneNodePtr>& added_scene_nodes, float app_time, float elapsed_time)
+	{
+		if (this->MainThreadUpdate(app_time, elapsed_time))
+		{
+			added_scene_nodes.push_back(this->shared_from_this());
+		}
+
+		this->UpdateAbsModelMatrix();
+
+		for (auto const & child : children_)
+		{
+			child->UpdateNode(added_scene_nodes, app_time, elapsed_time);
+		}
+	}
+
 	uint32_t SceneNode::NumRenderables() const
 	{
 		return static_cast<uint32_t>(renderables_.size());
@@ -313,7 +328,6 @@ namespace KlayGE
 		if (refreshed)
 		{
 			this->OnAttachRenderable(false);
-			this->UpdateAbsModelMatrix();
 		}
 
 		if (main_thread_update_func_)

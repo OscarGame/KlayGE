@@ -175,11 +175,6 @@ namespace KlayGE
 				if (node->Visible())
 				{
 					uint32_t const attr = node->Attrib();
-					if (attr & SceneNode::SOA_Moveable)
-					{
-						node->UpdateAbsModelMatrix();
-					}
-
 					if (attr & SceneNode::SOA_Cullable)
 					{
 						BoundOverlap bo;
@@ -218,11 +213,6 @@ namespace KlayGE
 					if (BO_Partial == visible)
 					{
 						uint32_t const attr = node->Attrib();
-						if (attr & SceneNode::SOA_Moveable)
-						{
-							node->UpdateAbsModelMatrix();
-						}
-
 						if (attr & SceneNode::SOA_Cullable)
 						{
 							if (attr & SceneNode::SOA_Moveable)

@@ -76,6 +76,8 @@ namespace KlayGE
 		void RemoveChild(SceneNodePtr const & node);
 		void ClearChildren();
 
+		void UpdateNode(std::vector<SceneNodePtr>& added_scene_nodes, float app_time, float elapsed_time);
+
 		uint32_t NumRenderables() const;
 		RenderablePtr const & GetRenderable() const;
 		RenderablePtr const & GetRenderable(uint32_t i) const;
